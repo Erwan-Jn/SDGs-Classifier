@@ -12,6 +12,9 @@ class DataProcess():
 
     def load_data(self):
         df = pd.read_csv(self.path, sep="\t")
+        df["sdg"] = df["sdg"].astype(str)
+        df["lenght_text"] = df["text"].map(lambda row: len(row.split()))
+        df["nb_reviewers"] = df["labels_negative"] + df["labels_positive"]
         return df
 
 #---------------------------------------------------------------------
