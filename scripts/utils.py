@@ -30,6 +30,8 @@ class DataProcess():
         df["sdg"] = df["sdg"].astype(str)
         df["lenght_text"] = df["text"].map(lambda row: len(row.split()))
         df["nb_reviewers"] = df["labels_negative"] + df["labels_positive"]
+        df["nb_reviewers"] = df["nb_reviewers"].astype(int)
+        df["agreement_large"] = df["labels_positive"] / df["nb_reviewers"]
         df["sdg_txt"] = df["sdg"].map(self.sdg)
         return df
 
@@ -62,6 +64,7 @@ class DataProcess():
     def clean_data(self):
         df = self.load_data()
         df["cleaned_text"] = df["text"].map(cleaning)
+        df["lenght_text_cleaned"] = df["cleaned_text"].map(lambda row: len(row.split()))
         return df
 
 #---------------------------------------------------------------------
