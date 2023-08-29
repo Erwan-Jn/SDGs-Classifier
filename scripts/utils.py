@@ -13,8 +13,8 @@ from scripts.clean_data import *
 class DataProcess():
     """Class to load and preprocess data. Requires a set up with
     parent directory:
-            ---raw_data
-            ---file being run
+    ---raw_data
+    ---file being run
     """
 
     def __init__(self):
@@ -32,6 +32,7 @@ class DataProcess():
 
     def load_data(self):
         """
+        Takes no argument (path given in __init__)
         Returns a pd.DataFrame
         Adds 4 columns to base data
         Converts 2 columns 2 different types
@@ -46,6 +47,11 @@ class DataProcess():
         return df
 
     def clean_data(self):
+        """
+        Takes no argument (path given in __init__)
+        Returns a pd.DataFrame
+        Add 3 columns of cleaned text + 1 column with length of cleaned text
+        """
         df = self.load_data()
         df["cleaned_text"] = df["text"].map(clean_nolemma)
         df["lemma"] = df["cleaned_text"].map(clean_lemmatize)
