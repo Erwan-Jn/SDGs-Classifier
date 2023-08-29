@@ -6,6 +6,8 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 
+import numpy as np
+
 def clean_strip(text):
     text = text.strip() #strip
     return text
@@ -104,3 +106,26 @@ def clean_total_stem(text):
     text = clean_stopwords(text)
     text = clean_stemming(text)
     return text
+
+translator_p = str.maketrans('', '', string.punctuation)
+translator_d = str.maketrans('', '', string.digits)
+stop_words = set(stopwords.words('english'))
+word_lem = WordNetLemmatizer()
+word_stem = PorterStemmer()
+
+def clean(text):
+    text = text.strip() #strip
+    text = text.lower()
+    text = text.translate(translator_p)
+    text = text.translate(translator_d)
+    return text
+
+clean_vec = np.vectorize(clean)
+
+def clean_lemma(text):
+    return " ".join([word_lem.lemmatize(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
+clean_lemma_vec = np.vectorize(clean_lemma)
+
+def clean_stem(text):
+    return " ".join([word_stem.stem(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
+clean_stem_vec = np.vectorize(clean_stem)
