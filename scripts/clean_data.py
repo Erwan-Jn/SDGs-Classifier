@@ -4,6 +4,7 @@ import string
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from nltk.stem import PorterStemmer
 
 def clean_strip(text):
     text = text.strip() #strip
@@ -34,6 +35,15 @@ def clean_lemmatize(text):
     stop_words = set(stopwords.words('english'))
     lemmatized = [WordNetLemmatizer().lemmatize(word, pos = "v") for word in tokenized_sentence]
     text = ' '.join(word for word in lemmatized)
+    return text
+
+def clean_stemming(text):
+    tokenized_sentence = word_tokenize(text)
+    porter = PorterStemmer()
+    stem_sentence=[]
+    for word in tokenized_sentence:
+      stem_sentence.append(porter.stem(word))
+    text = ' '.join(word for word in stem_sentence)
     return text
 
 def clean_total(text):
@@ -77,4 +87,20 @@ def clean_nolemma(text):
     text = clean_digits(text)
     text = clean_punctuation(text)
     text = clean_stopwords(text)
+    return text
+
+def clean_total_stem(text):
+    """Performs :
+    -Strip
+    -Lowercase
+    -Digits
+    -Punctuation
+    -Stopwords
+    -Stemming"""
+    text = clean_strip(text)
+    text = clean_lowercase(text)
+    text = clean_digits(text)
+    text = clean_punctuation(text)
+    text = clean_stopwords(text)
+    text = clean_stemming(text)
     return text
