@@ -50,7 +50,7 @@ class DataProcess():
         """
         Takes no argument (path given in __init__)
         Returns a pd.DataFrame
-        Add 3 columns of cleaned text + 1 column with length of cleaned text
+        Adds 3 columns of cleaned text + 1 column with length of cleaned text
         """
         df = self.load_data()
         df["cleaned_text"] = df["text"].map(clean_nolemma)
@@ -64,7 +64,7 @@ class DataProcess():
         """
         Takes no argument (path given in __init__)
         Returns a pd.DataFrame
-        Add 3 columns of cleaned text + 1 column with length of cleaned text
+        Adds 3 columns of cleaned text + 1 column with length of cleaned text
         """
 
         translator_p = str.maketrans('', '', string.punctuation)
