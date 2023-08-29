@@ -60,7 +60,7 @@ class PreprocDl():
             )
 
         vectorize_layer.adapt(X_train_tensor)
-        X_train_tensor = X_train_tensor.map(lambda text : vectorize_layer(tf.expand_dims(text, -1))
+        X_train_tensor = X_train_tensor.map(lambda text : vectorize_layer(tf.expand_dims(text, -1)))
 
         return X_train_tensor, X_train
     #X_train, X_test, y_train, y_test, vocab_size
