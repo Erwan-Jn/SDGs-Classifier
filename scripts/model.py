@@ -5,6 +5,9 @@ import pandas as pd
 
 from tensorflow.keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from tensorflow.keras.utils import pad_sequences
+from tensorflow.keras import layers
+
+import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -38,24 +41,26 @@ class PreprocDl():
 
     def load_dl(self, agreement=0, max_features=100, max_len=100):
         df = self.clean_data_short(agreement)
-        X= df["cleaned_text"]
-        X = [text_to_word_sequence(text) for text in X]
 
-        y= df["sdg"]
+        X= df["cleaned_text"]
+        y = df["sdg"]
 
         X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                    train_size=0.8,
-                                                    random_state=42)
+                                            train_size=0.8,
+                                            random_state=42)
 
-        tokenizer = Tokenizer(num_words=max_features)
-        tokenizer.fit_on_texts(list(X_train)+list(X_test))
-        X_train = tokenizer.texts_to_sequences(X_train)
-        X_test = tokenizer.texts_to_sequences(X_test)
-        X_train = pad_sequences(X_train, maxlen=max_len)
-        X_test = pad_sequences(X_test, maxlen=max_len)
+        X_train_tensor = tf.data.Dataset.from_tensor_slices(X_train)
+        X_test_tensor = tf.data.Dataset.from_tensor_slices(X_test)
 
-        le = LabelEncoder()
-        y_train = le.fit_transform(y_train.values)
-        y_test = le.transform(y_test.values)
 
-        return X_train, X_test, y_train, y_test
+        vectorize_layer = layers.TextVectorization(
+            max_tokens=max_features,
+            output_mode='int',
+            output_sequence_length=max_len
+            )
+
+        vectorize_layer.adapt(X_train_tensor)
+        X_train_tensor = X_train_tensor.map(lambda text : vectorize_layer(tf.expand_dims(text, -1))
+
+        return X_train_tensor, X_train
+    #X_train, X_test, y_train, y_test, vocab_size
