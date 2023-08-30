@@ -28,6 +28,25 @@ def preprocess_tf_idf(df: pd.DataFrame, col="lemma", max_features = 1000, max_df
     weighted_words = pd.DataFrame(tf_idf_vectorizer.fit_transform(texts).toarray(),
                  columns = tf_idf_vectorizer.get_feature_names_out())
     return weighted_words
+  
+def creating_csv(data = pd.DataFrame, vectorizer = 'tf_idf'):
+    """Function to apply bow or tf idf and create csv
+    data input must be dataframe
+    and the parameter vectorizer is either 'tf-idf' or something else (=bow)"""
+    target = data['sdg']
+    if vectorizer == 'tf_idf':
+        lemmatized = preprocess_tf_idf(data)
+        target.reset_index(inplace=True, drop=True)
+        lemmatized.reset_index(inplace=True, drop=True)
+        result = pd.concat([target, lemmatized], ignore_index=False, axis=1)
+        result.to_csv(f"../drafts/{'tf_idf'}.csv", sep=",")
+    else :
+        bow = preprocess_bow(data)
+        target.reset_index(inplace=True, drop=True)
+        bow.reset_index(inplace=True, drop=True)
+        result = pd.concat([target, bow], ignore_index=False, axis=1)
+        result.to_csv(f"../drafts/{'bow'}.csv", sep=",")
+
 
 class PreprocMl():
     def __init__(self):
