@@ -5,7 +5,7 @@ from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
-
+import re
 import numpy as np
 
 def clean_strip(text):
@@ -19,6 +19,14 @@ def clean_lowercase(text):
 def clean_digits(text):
     text = ''.join(char for char in text if not char.isdigit()) ## remove numbers
     return text
+
+def clean_numbers(x):
+    if bool(re.search(r'\d', x)):
+        x = re.sub('[0-9]{5,}', '#####', x)
+        x = re.sub('[0-9]**{4}**', '####', x)
+        x = re.sub('[0-9]**{3}**', '###', x)
+        x = re.sub('[0-9]**{2}**', '##', x)
+    return x
 
 def clean_punctuation(text):
     for punctuation in string.punctuation:
@@ -119,7 +127,6 @@ def clean(text):
     text = text.translate(translator_p)
     text = text.translate(translator_d)
     return text
-
 clean_vec = np.vectorize(clean)
 
 def clean_lemma(text):
