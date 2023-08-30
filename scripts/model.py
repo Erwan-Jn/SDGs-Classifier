@@ -6,15 +6,12 @@ import pandas as pd
 from tensorflow.keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from tensorflow.keras.utils import pad_sequences
 from tensorflow.keras import layers
-
 import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import make_scorer, precision_score, f1_score, recall_score, accuracy_score
-
-
 
 scoring = {'f1_score' : make_scorer(f1_score, average='macro'),
            'precision_score ': make_scorer(precision_score,average="macro"),
