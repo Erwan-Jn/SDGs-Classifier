@@ -61,6 +61,9 @@ class DataProcess():
         df = self.load_data()
         df = df.loc[df["agreement"]>=agreement, : ]
         df["cleaned_text"] = clean_vec(df["text"])
+
+        df["cleaned_text"] = df["cleaned_text"].map(lambda row: " ".join([w for w in iter(word_tokenize(row)) if w not in stop_words]))
+
         return df
 
     def clean_data(self, agreement=0):
