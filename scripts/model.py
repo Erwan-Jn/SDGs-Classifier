@@ -30,8 +30,8 @@ class PreprocDl():
         '''
         Define as pl
         Class inheriting the cleaning method from DataProcess.
-        Adding a BoW, TFIDF function on top of that.
-        Goal is to load, clean and preprocess data in one go.
+        Goal is to load, clean and preprocess data in one go for DL.
+        Loads the DL model as well
         '''
         dp = DataProcess()
         self.clean_data_short = dp.clean_data_short
@@ -44,22 +44,20 @@ class PreprocDl():
         df = self.clean_data_short(agreement)
 
         X= df["cleaned_text"].values
-        y = df["sdg"].values
+        y = df["sdg"].astype(int)
+        y = y.values - 1
 
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                             train_size=0.8,
                                             random_state=42)
 
-        y_train = y_train.astype(int)
-        y_test = y_test.astype(int)
-
-        cat_encode = layers.CategoryEncoding(num_tokens = len(np.unique(y_train)) + 1, output_mode="one_hot")
+        cat_encode = layers.CategoryEncoding(num_tokens = len(np.unique(y_train)), output_mode="one_hot")
         y_train_cat = cat_encode(y_train)
         y_test_cat = cat_encode(y_test)
 
         return X_train, X_test, y_train_cat, y_test_cat
 
-    def init_model(self, output, X_train, max_features=100, max_len=100,
+    def init_model(self, input: 'np.array', output: 'int', max_features=100, max_len=100,
                    embedding_dim=5, loss="categorical_crossentropy",
                    metrics=[tf.keras.metrics.CategoricalAccuracy()]):
         '''
@@ -72,7 +70,7 @@ class PreprocDl():
             output_sequence_length=max_len
             )
 
-        vectorize_layer.adapt(X_train)
+        vectorize_layer.adapt(input)
 
         text_input = tf.keras.Input(shape=(1,), dtype=tf.string, name='text')
         x = vectorize_layer(text_input)
