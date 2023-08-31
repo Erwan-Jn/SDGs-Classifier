@@ -8,10 +8,29 @@ from tensorflow.keras.utils import pad_sequences
 from tensorflow.keras import layers
 import tensorflow as tf
 
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import make_scorer, precision_score, f1_score, recall_score, accuracy_score
+
+import gensim.downloader as api
+
+def embed_sentence_with_TF(word2vec, sentence):
+    embedded_sentence = []
+    for word in sentence:
+        if word in word2vec:
+            embedded_sentence.append(word2vec[word])
+
+    return np.array(embedded_sentence)
+
+def embedding(word2vec, sentences):
+    embed = []
+
+    for sentence in sentences:
+        embedded_sentence = embed_sentence_with_TF(word2vec, sentence)
+        embed.append(embedded_sentence)
+
+    return embed
+
 
 scoring = {'f1_score' : make_scorer(f1_score, average='macro'),
            'precision_score ': make_scorer(precision_score,average="macro"),
@@ -57,6 +76,24 @@ class PreprocDl():
 
         return X_train, X_test, y_train_cat, y_test_cat
 
+    def word2vec_preproc(self, agreement=0, max_len=100):
+
+        word2vec_transfer = api.load("glove-wiki-gigaword-50")
+
+        X_train, X_test, y_train_cat, y_test_cat = self.load_dl(agreement)
+
+        X_train = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_train]
+        X_test = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_test]
+
+        X_train_embed = embedding(word2vec_transfer, X_train)
+        X_test_embed = embedding(word2vec_transfer, X_test)
+
+        X_train_pad = pad_sequences(X_train_embed, dtype='float32', padding='post', maxlen=max_len)
+        X_test_pad = pad_sequences(X_test_embed, dtype='float32', padding='post', maxlen=max_len)
+
+        return X_train_pad, X_test_pad, y_train_cat, y_test_cat
+
+
     def init_model(self, input: 'np.array', output: 'int', max_features=100, max_len=100,
                    embedding_dim=5, loss="categorical_crossentropy",
                    metrics=[tf.keras.metrics.CategoricalAccuracy()]):
@@ -71,22 +108,27 @@ class PreprocDl():
             )
 
         vectorize_layer.adapt(input)
-
-        text_input = tf.keras.Input(shape=(1,), dtype=tf.string, name='text')
+        text_input = tf.keras.Input(shape=input.shape[1], dtype=tf.string, name='text')
         x = vectorize_layer(text_input)
 
         x = layers.Embedding(max_features + 1, embedding_dim)(x)
-        x = layers.Dropout(0.5)(x)
+
+        x = layers.GRU(50, activation="tanh", return_sequences=True)(x)
+        x = layers.GRU(50, activation="tanh", return_sequences=False)(x)
+
+        x = layers.Dense(50, activation="relu")(x)
+        x = layers.Dropout(0.20)(x)
 
         # Conv1D + global max pooling
-        x = layers.Conv1D(128, 7, padding='valid', activation='relu')(x)
-        x = layers.GlobalMaxPooling1D()(x)
+        #x = layers.Conv1D(128, 7, padding='valid', activation='relu')(x)
+        #x = layers.GlobalMaxPooling1D()(x)
 
         # We add a vanilla hidden layer:
         x = layers.Dense(128, activation='relu')(x)
-        x = layers.Dropout(0.5)(x)
+        x = layers.Dropout(0.2)(x)
 
-        # We project onto a single unit output layer, and squash it with a sigmoid:
+        x = layers.Dense(50, activation="relu")(x)
+
         predictions = layers.Dense(output, activation='softmax', name='pred')(x)
         model = tf.keras.Model(text_input, predictions)
 
