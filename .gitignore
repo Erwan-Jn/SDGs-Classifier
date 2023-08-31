@@ -50,3 +50,6 @@ MANIFEST
 
 # Exploration draft
 notebooks/*
+
+#gcloud-storage push models
+scripts/api/gcs_models.py
