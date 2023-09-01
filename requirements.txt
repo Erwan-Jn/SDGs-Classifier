@@ -12,6 +12,8 @@ nltk
 google-cloud-storage
 pyarrow
 blob
+os
+colorama
 
 # API
 fastapi
