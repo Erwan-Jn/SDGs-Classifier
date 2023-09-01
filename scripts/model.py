@@ -94,40 +94,35 @@ class PreprocDl():
         return X_train_pad, X_test_pad, y_train_cat, y_test_cat
 
 
-    def init_model(self, input: 'np.array', output: 'int', max_features=100, max_len=100,
-                   embedding_dim=5, loss="categorical_crossentropy",
+    def init_model(self, input: 'np.array', output: 'int', vocab_size=1000, max_len=150,
+                   embedding_dim=100, loss="categorical_crossentropy",
                    metrics=[tf.keras.metrics.CategoricalAccuracy()]):
         '''
         Method to prepare the model
         Numerous parameters to determine
         '''
         vectorize_layer = layers.TextVectorization(
-            max_tokens=max_features,
+            ngrams = 2,
+            max_tokens=vocab_size,
             output_mode='int',
             output_sequence_length=max_len
             )
 
         vectorize_layer.adapt(input)
-        text_input = tf.keras.Input(shape=input.shape[1], dtype=tf.string, name='text')
+
+        text_input = tf.keras.Input(shape=(1, ), dtype=tf.string, name='text')
+
         x = vectorize_layer(text_input)
+        x = layers.Embedding(vocab_size + 1, embedding_dim)(x)
 
-        x = layers.Embedding(max_features + 1, embedding_dim)(x)
-
+        x = layers.GRU(50, activation="tanh", return_sequences=True)(x)
         x = layers.GRU(50, activation="tanh", return_sequences=True)(x)
         x = layers.GRU(50, activation="tanh", return_sequences=False)(x)
 
-        x = layers.Dense(50, activation="relu")(x)
-        x = layers.Dropout(0.20)(x)
-
-        # Conv1D + global max pooling
-        #x = layers.Conv1D(128, 7, padding='valid', activation='relu')(x)
-        #x = layers.GlobalMaxPooling1D()(x)
-
-        # We add a vanilla hidden layer:
         x = layers.Dense(128, activation='relu')(x)
         x = layers.Dropout(0.2)(x)
-
         x = layers.Dense(50, activation="relu")(x)
+        x = layers.Dropout(0.2)(x)
 
         predictions = layers.Dense(output, activation='softmax', name='pred')(x)
         model = tf.keras.Model(text_input, predictions)
@@ -141,121 +136,122 @@ class PreprocDl():
 
 
 #############################DL MODEL TEMPLATE###################################################
-import tensorflow
-import tensorflow as tf
+def test():
+    import tensorflow
+    import tensorflow as tf
 
-import os
-import pandas as pd
-import string
-import numpy as np
+    import os
+    import pandas as pd
+    import string
+    import numpy as np
 
-import nltk
-from nltk import word_tokenize
-from nltk.corpus import stopwords
+    import nltk
+    from nltk import word_tokenize
+    from nltk.corpus import stopwords
 
-from sklearn.model_selection import train_test_split
+    from sklearn.model_selection import train_test_split
 
-import gensim.downloader as api
+    import gensim.downloader as api
 
-path =os.path.join(os.getcwd(), "drive", "My Drive", "SDGs", "processed_data")
+    path =os.path.join(os.getcwd(), "drive", "My Drive", "SDGs", "processed_data")
 
-nltk.download('stopwords')
-nltk.download('punkt')
+    nltk.download('stopwords')
+    nltk.download('punkt')
 
-translator_p = str.maketrans('', '', string.punctuation)
-translator_d = str.maketrans('', '', string.digits)
-stop_words = set(stopwords.words('english'))
+    translator_p = str.maketrans('', '', string.punctuation)
+    translator_d = str.maketrans('', '', string.digits)
+    stop_words = set(stopwords.words('english'))
 
-def clean(text):
-    text = text.strip() #strip
-    text = text.lower()
-    text = text.translate(translator_p)
-    text = text.translate(translator_d)
-    return text
+    def clean(text):
+        text = text.strip() #strip
+        text = text.lower()
+        text = text.translate(translator_p)
+        text = text.translate(translator_d)
+        return text
 
-clean_vec = np.vectorize(clean)
+    clean_vec = np.vectorize(clean)
 
-def embed_sentence_with_TF(word2vec, sentence):
-    embedded_sentence = []
-    for word in sentence:
-        if word in word2vec:
-            embedded_sentence.append(word2vec[word])
+    def embed_sentence_with_TF(word2vec, sentence):
+        embedded_sentence = []
+        for word in sentence:
+            if word in word2vec:
+                embedded_sentence.append(word2vec[word])
 
-    return np.array(embedded_sentence)
+        return np.array(embedded_sentence)
 
-def embedding(word2vec, sentences):
-    embed = []
+    def embedding(word2vec, sentences):
+        embed = []
 
-    for sentence in sentences:
-        embedded_sentence = embed_sentence_with_TF(word2vec, sentence)
-        embed.append(embedded_sentence)
+        for sentence in sentences:
+            embedded_sentence = embed_sentence_with_TF(word2vec, sentence)
+            embed.append(embedded_sentence)
 
-    return embed
+        return embed
 
-word2vec_transfer = api.load("glove-wiki-gigaword-100")
-df = pd.read_csv("/kaggle/input/raw-data/data.csv", sep="\t")
+    word2vec_transfer = api.load("glove-wiki-gigaword-100")
+    df = pd.read_csv("/kaggle/input/raw-data/data.csv", sep="\t")
 
-agreement=0
+    agreement=0
 
-df = df.loc[df["agreement"]>=agreement, : ]
-df["cleaned_text"] = clean_vec(df["text"])
-df["cleaned_text"] = df["cleaned_text"].map(lambda row: " ".join([w for w in iter(word_tokenize(row)) if w not in stop_words]))
-X= df["cleaned_text"].values
+    df = df.loc[df["agreement"]>=agreement, : ]
+    df["cleaned_text"] = clean_vec(df["text"])
+    df["cleaned_text"] = df["cleaned_text"].map(lambda row: " ".join([w for w in iter(word_tokenize(row)) if w not in stop_words]))
+    X= df["cleaned_text"].values
 
-y = df["sdg"].astype(int)
-y = y.values - 1
+    y = df["sdg"].astype(int)
+    y = y.values - 1
 
-X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                    train_size=0.8,
-                                    random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                        train_size=0.8,
+                                        random_state=42)
 
-cat_encode = tf.keras.layers.CategoryEncoding(num_tokens = len(np.unique(y_train)), output_mode="one_hot")
-y_train = cat_encode(y_train)
-y_test = cat_encode(y_test)
+    cat_encode = tf.keras.layers.CategoryEncoding(num_tokens = len(np.unique(y_train)), output_mode="one_hot")
+    y_train = cat_encode(y_train)
+    y_test = cat_encode(y_test)
 
-max_len=200
+    max_len=200
 
-X_train = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_train]
-X_test = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_test]
+    X_train = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_train]
+    X_test = [tf.keras.preprocessing.text.text_to_word_sequence(text) for text in X_test]
 
-X_train_embed = embedding(word2vec_transfer, X_train)
-X_test_embed = embedding(word2vec_transfer, X_test)
+    X_train_embed = embedding(word2vec_transfer, X_train)
+    X_test_embed = embedding(word2vec_transfer, X_test)
 
-X_train_pad = tf.keras.utils.pad_sequences(X_train_embed, dtype='float32', padding='post', maxlen=max_len)
-X_test_pad = tf.keras.utils.pad_sequences(X_test_embed, dtype='float32', padding='post', maxlen=max_len)
-X_train = tf.convert_to_tensor(X_train_pad)
-X_test = tf.convert_to_tensor(X_test_pad)
+    X_train_pad = tf.keras.utils.pad_sequences(X_train_embed, dtype='float32', padding='post', maxlen=max_len)
+    X_test_pad = tf.keras.utils.pad_sequences(X_test_embed, dtype='float32', padding='post', maxlen=max_len)
+    X_train = tf.convert_to_tensor(X_train_pad)
+    X_test = tf.convert_to_tensor(X_test_pad)
 
-embedding_dims = 200 #Length of the token vectors
-filters = 10 #number of filters in your Convnet
-kernel_size = 3 # a window size of 3 tokens
+    embedding_dims = 200 #Length of the token vectors
+    filters = 10 #number of filters in your Convnet
+    kernel_size = 3 # a window size of 3 tokens
 
-from tensorflow.keras import models, layers, models
-from tensorflow.keras.models import Sequential
+    from tensorflow.keras import models, layers, models
+    from tensorflow.keras.models import Sequential
 
-model = Sequential()
-model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh", return_sequences=False)))
-model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh", return_sequences=True)))
-model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh")))
-model.add(layers.Dense(130, activation="relu"))
-model.add(layers.Dropout(0.30))
-model.add(layers.Dense(80, activation="relu"))
-model.add(layers.Dropout(0.30))
-model.add(layers.Dense(y_train.shape[1], activation="softmax"))
+    model = Sequential()
+    model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh", return_sequences=False)))
+    model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh", return_sequences=True)))
+    model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(128, activation="tanh")))
+    model.add(layers.Dense(130, activation="relu"))
+    model.add(layers.Dropout(0.30))
+    model.add(layers.Dense(80, activation="relu"))
+    model.add(layers.Dropout(0.30))
+    model.add(layers.Dense(y_train.shape[1], activation="softmax"))
 
-model.compile(loss='categorical_crossentropy', optimizer='adam',
-              metrics=[tf.keras.metrics.CategoricalAccuracy(),
-                       tf.keras.metrics.Precision()]
-             )
+    model.compile(loss='categorical_crossentropy', optimizer='adam',
+                metrics=[tf.keras.metrics.CategoricalAccuracy(),
+                        tf.keras.metrics.Precision()]
+                )
 
-epochs = 500
-from tensorflow.keras.callbacks import EarlyStopping
-es = EarlyStopping(patience=20, restore_best_weights=True)
+    epochs = 500
+    from tensorflow.keras.callbacks import EarlyStopping
+    es = EarlyStopping(patience=20, restore_best_weights=True)
 
-history = model.fit(X_train, y_train,
-                    validation_split=0.2,
-                    batch_size = 16,
-                    #verbose = 0,
-                    epochs=epochs,
-                    callbacks=[es]
-                    )
+    history = model.fit(X_train, y_train,
+                        validation_split=0.2,
+                        batch_size = 16,
+                        #verbose = 0,
+                        epochs=epochs,
+                        callbacks=[es]
+                        )
