@@ -27,7 +27,7 @@ pytz
 uvicorn
 google-cloud-storage
 blob
-
+os
 # tests
 httpx           # HTTP client
 pytest
