@@ -90,3 +90,12 @@ class DataProcess():
         df["lenght_text_cleaned"] = df["lemma"].map(lambda row: len(row.split()))
 
         return df
+
+    def group_sdg(self):
+        df = self.clean_data_short()
+        df["sdg"] = df["sdg"].astype(int)
+        sdg = np.arange(1, 17)
+        esg = [1, 3, 3, 3, 3, 3, 2, 1, 1, 1, 2, 2, 2, 2, 2, 3]
+        sdg_esg = dict(zip(sdg, esg))
+        df["esg"] = df["sdg"].map(sdg_esg)
+        return df
