@@ -1,12 +1,23 @@
 import os
 import pandas as pd
 import string
+
+import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.stem import PorterStemmer
+from nltk.tag import pos_tag
+
 import re
 import numpy as np
+
+translator_p = str.maketrans('', '', string.punctuation)
+translator_d = str.maketrans('', '', string.digits)
+
+nltk.download("stopwords")
+nltk.download("punkt")
+stop_words = set(stopwords.words('english'))
+word_lem = WordNetLemmatizer()
 
 def clean_strip(text):
     text = text.strip() #strip
@@ -40,38 +51,6 @@ def clean_stopwords(text):
     text = ' '.join(word for word in text)
     return text
 
-def clean_lemmatize(text):
-    tokenized_sentence = word_tokenize(text)
-    stop_words = set(stopwords.words('english'))
-    lemmatized = [WordNetLemmatizer().lemmatize(word, pos = "v") for word in tokenized_sentence]
-    text = ' '.join(word for word in lemmatized)
-    return text
-
-def clean_stemming(text):
-    tokenized_sentence = word_tokenize(text)
-    porter = PorterStemmer()
-    stem_sentence=[]
-    for word in tokenized_sentence:
-      stem_sentence.append(porter.stem(word))
-    text = ' '.join(word for word in stem_sentence)
-    return text
-
-def clean_total(text):
-    """Performs :
-    -Strip
-    -Lowercase
-    -Digits
-    -Punctuation
-    -Stopwords
-    -Lemmatization"""
-    text = clean_strip(text)
-    text = clean_lowercase(text)
-    text = clean_digits(text)
-    text = clean_punctuation(text)
-    text = clean_stopwords(text)
-    text = clean_lemmatize(text)
-    return text
-
 def clean_basic(text):
     """Performs:
     -Strip
@@ -84,55 +63,14 @@ def clean_basic(text):
     text = clean_punctuation(text)
     return text
 
-def clean_nolemma(text):
-    """Performs :
-    -Strip
-    -Lowercase
-    -Digits
-    -Punctuation
-    -Stopwords
-    -Lemmatization"""
-    text = clean_strip(text)
-    text = clean_lowercase(text)
-    text = clean_digits(text)
-    text = clean_punctuation(text)
-    text = clean_stopwords(text)
-    return text
-
-def clean_total_stem(text):
-    """Performs :
-    -Strip
-    -Lowercase
-    -Digits
-    -Punctuation
-    -Stopwords
-    -Stemming"""
-    text = clean_strip(text)
-    text = clean_lowercase(text)
-    text = clean_digits(text)
-    text = clean_punctuation(text)
-    text = clean_stopwords(text)
-    text = clean_stemming(text)
-    return text
-
-translator_p = str.maketrans('', '', string.punctuation)
-translator_d = str.maketrans('', '', string.digits)
-stop_words = set(stopwords.words('english'))
-word_lem = WordNetLemmatizer()
-word_stem = PorterStemmer()
-
 def clean(text):
     text = text.strip() #strip
-    text = text.lower()
     text = text.translate(translator_p)
     text = text.translate(translator_d)
+    text = text.lower()
     return text
 clean_vec = np.vectorize(clean)
 
 def clean_lemma(text):
     return " ".join([word_lem.lemmatize(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
 clean_lemma_vec = np.vectorize(clean_lemma)
-
-def clean_stem(text):
-    return " ".join([word_stem.stem(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
-clean_stem_vec = np.vectorize(clean_stem)
