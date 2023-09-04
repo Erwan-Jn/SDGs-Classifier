@@ -24,7 +24,8 @@ def preprocess_tf_idf(df: pd.DataFrame, col="lemma", max_features = 1000, max_df
     Returns a df
     """
     texts = df[col]
-    tf_idf_vectorizer = TfidfVectorizer(max_features=max_features, max_df=max_df, ngram_range=ngram_range)
+    tf_idf_vectorizer = TfidfVectorizer(max_features=max_features, max_df=max_df, ngram_range=ngram_range,
+                                        decode_error='ignore')
     weighted_words = pd.DataFrame(tf_idf_vectorizer.fit_transform(texts).toarray(),
                  columns = tf_idf_vectorizer.get_feature_names_out())
     return weighted_words
