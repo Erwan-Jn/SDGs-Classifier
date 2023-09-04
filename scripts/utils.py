@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import string
 import numpy as np
+import glob
 
 from nltk import word_tokenize
 from nltk.corpus import stopwords
@@ -102,3 +103,29 @@ class DataProcess():
             return df
 
         return df
+
+def load_processed_data(file_name:str = None):
+    file_path = os.path.join(os.path.dirname(os.getcwd()), "data", "processed_data")
+
+    if file_name==None:
+        full_file_path = os.path.join(file_path, "None")
+    else:
+        full_file_path = os.path.join(file_path, file_name)
+
+    if not os.path.exists(full_file_path):
+        files = [os.path.join(file_path, file) for file in os.listdir(file_path) if file.endswith(".csv")]
+
+        if len(files) == 0:
+            print("No processed data, please use preprocess first")
+            return None
+
+        print("No corresponding csv file, returning latest saved csv")
+        full_file_path = max(files, key=os.path.getctime)
+
+    data_processed = pd.read_csv(full_file_path)
+
+    if data_processed.shape[0] < 10:
+        print("❌ Not enough processed data retrieved to train on")
+        return None
+
+    return data_processed
