@@ -60,19 +60,27 @@ class PreprocMl():
         dp = DataProcess()
         self.clean_data = dp.clean_data
 
-    def preprocess_bow_full(self, agreement=0):
+    def preprocess_bow_full(self, agreement=0, grouped=False):
         '''
         Takes one argument, agreement, that defines how many rows are kept
         in the df.
         '''
-        df = self.clean_data(agreement)
+        df = self.clean_data(agreement, grouped)
         return preprocess_bow(df)
 
-    def preprocess_tf_idf_full(self,  agreement=0):
+    def preprocess_tf_idf_full(self,  agreement=0, grouped=False, max_features = 2000, max_df = 0.7, ngram_range = (1,2)):
         '''
         Loads and cleans data and return a tfidf matrix.
         Takes one argument, agreement, that defines how many rows are kept
         in the df.
         '''
-        df = self.clean_data(agreement)
-        return preprocess_tf_idf(df)
+        df = self.clean_data(agreement, grouped)
+
+        if grouped:
+            return {"X": preprocess_tf_idf(df, max_features=max_features, max_df=max_df, ngram_range=ngram_range),
+                    "y": df["esg"]
+            }
+
+        return {"X": preprocess_tf_idf(df, max_features=max_features, max_df=max_df, ngram_range=ngram_range),
+                    "y": df["sdg"]
+            }

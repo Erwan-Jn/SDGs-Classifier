@@ -1,13 +1,23 @@
-pytest
-pylint
-ipdb
-jupyter
-jupyterlab
+#Data Manipulation
 numpy
 pandas
+
+
+#Graph
+matplotlib
+seaborn
+
+#ML
 scikit-learn
+
+#NLP
+gensim
 nltk
-google-cloud-storage
+string
+
+#DL
+tensorflow
+
 pyarrow
 blob
 colorama
@@ -16,7 +26,17 @@ colorama
 fastapi
 pytz
 uvicorn
+google-cloud-storage
+blob
 
 # tests
 httpx           # HTTP client
+pytest
 pytest-asyncio  # asynchronous I/O support for pytest
+
+#MISC
+pylint
+ipdb
+jupyter
+jupyterlab
+os
