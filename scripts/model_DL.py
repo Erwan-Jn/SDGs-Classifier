@@ -24,18 +24,6 @@ word2vec_transfer = api.load("glove-wiki-gigaword-100")
 
 path =os.path.join(os.getcwd(), "raw_data", "data.csv")
 
-translator_p = str.maketrans('', '', string.punctuation)
-translator_d = str.maketrans('', '', string.digits)
-stop_words = set(stopwords.words('english'))
-
-def clean(text):
-    text = text.strip() #strip
-    text = text.lower()
-    text = text.translate(translator_p)
-    text = text.translate(translator_d)
-    return text
-clean_vec = np.vectorize(clean)
-
 def embed_sentence_with_TF(word2vec, sentence):
     embedded_sentence = []
     for word in sentence:
@@ -56,13 +44,7 @@ def embedding(word2vec, sentences):
 dp = DataProcess()
 df = dp.clean_data_short()
 
-agreement=0
-
-df = df.loc[df["agreement"]>=agreement, : ]
-df["cleaned_text"] = clean_vec(df["text"])
-df["cleaned_text"] = df["cleaned_text"].map(lambda row: " ".join([w for w in iter(word_tokenize(row)) if w not in stop_words]))
 X= df["cleaned_text"].values
-
 y = df["sdg"].astype(int)
 y = y.values - 1
 

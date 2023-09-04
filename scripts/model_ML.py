@@ -11,6 +11,10 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 
+import os
+import glob
+import pickle
+
 def train_model(
         X: np.ndarray,
         y: np.ndarray,
@@ -29,6 +33,7 @@ def train_model(
         ])
 
     res = cross_validate(pipe_model, X_train, y_train)
+    res = pd.DataFrame(res)
 
     print(f"✅ Model trained on {len(X_train)} rows with mean cross_validated accuracy: {round(np.mean(res.get('test_score')), 2)}")
 
@@ -38,8 +43,8 @@ def train_model(
 
 def evaluate_model(
         model,
-        X: np.ndarray,
-        y: np.ndarray,
+        X: pd.DataFrame,
+        y: pd.Series,
         test_split=0.3
     ):
     """
@@ -60,11 +65,34 @@ def evaluate_model(
 
     print(f"✅ Model evaluated, accuracy: {metrics[0]}")
 
-    return dict(zip(metrics_name, metrics))
+    return pd.DataFrame(dict(zip(metrics_name, metrics)))
 
 def predict_model(
         model,
-        X: np.ndarray
+        X: str
         ):
 
     return model.predict(X), model.predict_proba(X)
+
+def load_model(model_name:str = None):
+
+    file_path = os.path.join(os.path.dirname(os.getcwd()), "models", "saves")
+    if model_name==None:
+        full_file_path = os.path.join(file_path, "None")
+    else:
+        full_file_path = os.path.join(file_path, model_name)
+
+    if not os.path.exists(full_file_path):
+        files = [os.path.join(file_path, file) for file in os.listdir(file_path) if file.endswith(".pkl")]
+        breakpoint()
+
+        if len(files)==0:
+            print("No model trained, please train a model")
+            return None
+
+        print("No specific model passed, returning latest saved model")
+        full_file_path = max(files, key=os.path.getctime)
+
+    model = pickle.load(open(full_file_path, 'rb'))
+    breakpoint()
+    return model

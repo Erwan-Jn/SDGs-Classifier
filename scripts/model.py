@@ -9,8 +9,7 @@ from tensorflow.keras.utils import pad_sequences
 from tensorflow.keras import layers
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split, cross_validate
-from sklearn.metrics import make_scorer, precision_score, f1_score, recall_score, accuracy_score*
+from sklearn.model_selection import train_test_split
 
 import gensim.downloader as api
 
