@@ -4,7 +4,7 @@ run_preprocess:
 
 # not sure about this one
 run_upload_model:
-  python -c 'from scripts.api.gcs_models import BucketManager, upload_file; upload_file()'
+	python -c 'from scripts.api.gcs_models import BucketManager, upload_file; upload_file()'
 
 run_api:
 	uvicorn	sdg_classifier_api.fast:app	--reload

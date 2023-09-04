@@ -5,6 +5,10 @@ import numpy as np
 
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 
