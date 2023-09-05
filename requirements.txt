@@ -40,3 +40,8 @@ ipdb
 jupyter
 jupyterlab
 os
+
+#streamlit, pdf upload etc.
+streamlit
+pdfquery
+requests
