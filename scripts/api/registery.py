@@ -8,15 +8,8 @@ from google.cloud import storage
 from scripts.params import *
 import pickle
 
-CONFIG = {
-    'project_id': "sdg-classifier-397610",
-    'bucket_name': "sdg-classifier",
-    'local_file_path': "model/lrm31_08/pipe_lrm.pkl",
-    'remote_file_path': "pipe_lrm.pkl"
-    }
 
-
-def load_model():
+def load_model(CONFIG):
     print(Fore.BLUE + f"\nLoad latest model from GCS..." + Style.RESET_ALL)
 
     # try:
