@@ -6,6 +6,10 @@ import numpy as np
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('wordnet')
 
 from scripts.clean_data import *
 from scripts.params import LOCAL_RAW_PATH, LOCAL_DATA_PATH
