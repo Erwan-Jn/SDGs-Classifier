@@ -1,7 +1,28 @@
 import streamlit as st
 import requests
+import pandas as pd
+from scripts.pdf import pdf
+from io import StringIO
 
 st.title("Demo Day - SGD Classifier")
+
+with st.form(key='params_for_api_pdf'):
+    uploaded_file = st.file_uploader("Choose a file")
+    #if uploaded_file is not None:
+    if st.form_submit_button("Upload pdf"):
+        bytes_data = uploaded_file.getvalue()
+        #st.write(bytes_data)
+        stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
+        string_data = stringio.read()
+        text = pdf(uploaded_file)
+
+        params = dict(text=text)
+        sdg_classifier_api_url = f"https://sdgclassifier-bw4yive63a-od.a.run.app/predict?{text}"
+        response = requests.get(sdg_classifier_api_url,params=params)
+        prediction = response.json()
+        pred = prediction['The text is talking about SDG:']
+
+
 with st.form(key='params_for_api'):
     text = st.text_input("Article")
     if st.form_submit_button('Which SDG am I ? '):
