@@ -11,7 +11,6 @@ from scripts.model_ML import train_model, evaluate_model, predict_model, load_mo
 from scripts.clean_data import clean_vec, clean_lemma_vec
 from scripts.params import *
 
-
 def local_setup()-> None:
     for file_path in LOCAL_PATHS:
         if not os.path.exists(file_path):
@@ -19,11 +18,10 @@ def local_setup()-> None:
 
 def preprocess() -> None:
     """
-    - Query the raw dataset from Le Wagon's BigQuery dataset
-    - Cache query result as a local CSV if it doesn't exist locally
-    - Process query data
-    - Store processed data on your personal BQ (truncate existing table if it exists)
-    - No need to cache processed data as CSV (it will be cached when queried back from BQ during training)
+    Load the raw data from the raw_data folder
+    Save the data locally if not in the raw data foler
+    Process query data
+    Store processed data in the processed directory
     """
 
     print(Fore.MAGENTA + "\n ⭐️ Use case: preprocess" + Style.RESET_ALL)
@@ -34,25 +32,21 @@ def preprocess() -> None:
 
     now = datetime.now()
 
-    exit_path = LOCAL_DATA_PATH
     file_name = f"processed_{now.strftime('%d-%m-%Y-%H-%M')}.csv"
-    full_file_path = os.path.join(exit_path, file_name)
+    full_file_path = os.path.join(LOCAL_DATA_PATH, file_name)
 
-    print(full_file_path)
     data_clean.to_csv(full_file_path)
 
     print("✅ preprocess() done \n Saved localy")
 
-def train(file_name: str = None,
-          target = "sdg",
-          test_split: float = 0.2) -> float:
+def train(file_name:str = None,
+          target:str = "sdg",
+          test_split: float = 0.2) -> None:
 
     """
-    - Download processed data from your BQ table (or from cache if it exists)
-    - Train on the preprocessed dataset (which should be ordered by date)
-    - Store training results and model weights
-
-    Return val_mae as a float
+    Load data from the data folder
+    Train the instantiated model on the train set
+    Store training results and model weights
     """
 
     print(Fore.MAGENTA + "\n⭐️ Use case: train" + Style.RESET_ALL)
@@ -76,12 +70,12 @@ def train(file_name: str = None,
     full_file_path = os.path.join(LOCAL_RESULT_PATH, file_name)
     res.to_csv(full_file_path)
 
-def evaluate(file_name: str = None,
-    target = "sdg"
-    ) -> float:
+def evaluate(file_name:str = None,
+    target:str = "sdg"
+    ) -> pd.DataFrame:
     """
     Evaluate the performance of the latest production model on processed data
-    Return MAE as a float
+    Return accuracy, recall, precision and f1 as a pd.DataFrame
     """
     print(Fore.MAGENTA + "\n⭐️ Use case: evaluate" + Style.RESET_ALL)
 
@@ -105,7 +99,7 @@ def evaluate(file_name: str = None,
 
     return results
 
-def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
+def pred(X_pred: pd.DataFrame = None) -> np.array:
     """
     Make a prediction using the latest trained model and provided data
     """
@@ -126,19 +120,18 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
 
     sdg_dict = DataProcess().sdg
     sdg_dict = {int(key): value for key, value in sdg_dict.items()}
-    breakpoint()
 
     print("\n✅ prediction done: ", y_pred, [sdg_dict[pred] for pred in y_pred], y_pred.shape, "\n")
     return y_pred
 
 
 if __name__ == '__main__':
-    #local_setup()
-    #print("✅ Setup done")
-    #preprocess()
-    #print("✅ Process done")
-    #train()
-    #print("✅ Train done")
+    local_setup()
+    print("✅ Setup done")
+    preprocess()
+    print("✅ Process done")
+    train()
+    print("✅ Train done")
     evaluate()
     print("✅ Evaluate done")
     pred()

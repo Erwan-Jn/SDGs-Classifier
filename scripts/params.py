@@ -12,4 +12,4 @@ LOCAL_DATA_PATH = os.path.join(ROOT_PATH, "data", "processed_data")
 LOCAL_MODEL_PATH = os.path.join(ROOT_PATH, "models", "saves")
 LOCAL_RESULT_PATH = os.path.join(ROOT_PATH, "models", "results", "train")
 LOCAL_EVALUATE_PATH = os.path.join(ROOT_PATH, "models", "results", "evaluate")
-LOCAL_PATHS = [LOCAL_DATA_PATH, LOCAL_MODEL_PATH, LOCAL_RESULT_PATH, LOCAL_EVALUATE_PATH]
+LOCAL_PATHS = [LOCAL_RAW_PATH, LOCAL_DATA_PATH, LOCAL_MODEL_PATH, LOCAL_RESULT_PATH, LOCAL_EVALUATE_PATH]
