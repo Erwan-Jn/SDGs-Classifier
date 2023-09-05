@@ -3,7 +3,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split, cross_validate
-from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score, make_scorer
 
 from colorama import Fore, Style
 from typing import Tuple
@@ -12,8 +12,9 @@ import numpy as np
 import pandas as pd
 
 import os
-import glob
 import pickle
+
+from scripts.params import LOCAL_MODEL_PATH
 
 def train_model(
         X: np.ndarray,
@@ -59,13 +60,15 @@ def evaluate_model(
         return None
 
     y_pred = model.predict(X_test)
-    metrics = [accuracy_score, precision_score, f1_score, recall_score]
-    metrics = [elem(y_test, y_pred) for elem in metrics]
-    metrics_name = ["accuracy", "precision", "f1", "recall"]
+
+    metrics = [accuracy_score(y_test, y_pred) , precision_score(y_test, y_pred, average="macro"),
+               f1_score(y_test, y_pred, average="macro"), recall_score(y_test, y_pred, average="macro")]
+    metrics_name = ["res_accuracy", "res_precision", "res_f1", "res_recall"]
 
     print(f"✅ Model evaluated, accuracy: {metrics[0]}")
-
-    return pd.DataFrame(dict(zip(metrics_name, metrics)))
+    results = dict(zip(metrics_name, metrics))
+    results = {key: [value] for key, value in results.items()}
+    return pd.DataFrame(results, index=[0])
 
 def predict_model(
         model,
@@ -76,15 +79,13 @@ def predict_model(
 
 def load_model(model_name:str = None):
 
-    file_path = os.path.join(os.path.dirname(os.getcwd()), "models", "saves")
     if model_name==None:
-        full_file_path = os.path.join(file_path, "None")
+        full_file_path = os.path.join(LOCAL_MODEL_PATH, "None")
     else:
-        full_file_path = os.path.join(file_path, model_name)
+        full_file_path = os.path.join(LOCAL_MODEL_PATH, model_name)
 
     if not os.path.exists(full_file_path):
-        files = [os.path.join(file_path, file) for file in os.listdir(file_path) if file.endswith(".pkl")]
-        breakpoint()
+        files = [os.path.join(LOCAL_MODEL_PATH, file) for file in os.listdir(LOCAL_MODEL_PATH) if file.endswith(".pkl")]
 
         if len(files)==0:
             print("No model trained, please train a model")
@@ -94,5 +95,4 @@ def load_model(model_name:str = None):
         full_file_path = max(files, key=os.path.getctime)
 
     model = pickle.load(open(full_file_path, 'rb'))
-    breakpoint()
     return model

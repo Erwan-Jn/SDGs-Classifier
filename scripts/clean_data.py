@@ -5,17 +5,13 @@ import string
 import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
-import nltk
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
 from nltk.tag import pos_tag
 
 import re
 import numpy as np
 
-translator_p = str.maketrans('', '', string.punctuation)
+translator_p = str.maketrans(string.punctuation, ' '*len(string.punctuation))
 translator_d = str.maketrans('', '', string.digits)
 
 nltk.download("stopwords")
@@ -72,7 +68,7 @@ def clean(text):
     text = text.translate(translator_p)
     text = text.translate(translator_d)
     text = text.lower()
-    return text
+    return " ".join(text.split())
 clean_vec = np.vectorize(clean)
 
 def clean_lemma(text):
