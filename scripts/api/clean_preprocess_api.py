@@ -1,5 +1,5 @@
 from scripts.utils import DataProcess
-from scripts.clean_data import clean_vec, clean_lemma_vec, clean_stem_vec
+from scripts.clean_data import clean_vec, clean_lemma_vec
 from nltk.corpus import stopwords
 import nltk
 nltk.download('stopwords')
@@ -12,7 +12,7 @@ import pandas as pd
 
 
 
-def preprocess_features(X : str, root_words = 'lemma', vectorizer = 'tf-idf') -> pd.DataFrame:
+def preprocess_features(X : str) -> pd.DataFrame:
     """Pipe that takes as input a dataframe with the texts
     Will output a dataframe witht text tf-idf vectorized
     Arguments :
@@ -31,14 +31,8 @@ def preprocess_features(X : str, root_words = 'lemma', vectorizer = 'tf-idf') ->
     -tf-idf
     """
     cleaned_text = clean_vec(X)
-    if root_words == 'lemma':
-        X = clean_lemma_vec(cleaned_text)
-        # X["lenght_text_cleaned"] = X["lemma"].map(lambda row: len(row.split()))
-        X_prepro =  X
-
-    elif root_words == 'stem':
-        X = clean_stem_vec(cleaned_text)
-        # X["lenght_text_cleaned"] = X["stem"].map(lambda row: len(row.split()))
-        X_prepro
+    X = clean_lemma_vec(cleaned_text)
+    # X["lenght_text_cleaned"] = X["lemma"].map(lambda row: len(row.split()))
+    X_prepro =  X
 
     return [str(X_prepro)]
