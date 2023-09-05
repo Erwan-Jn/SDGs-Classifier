@@ -1,6 +1,7 @@
 # Project Dir
 drafts/*
 raw_data/*
+scripts/.history/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -26,6 +27,7 @@ ipython_config.py
 env/
 venv/
 ENV/
+.env.yaml
 
 # Distribution / packaging
 .Python
@@ -50,3 +52,7 @@ MANIFEST
 
 # Exploration draft
 notebooks/*
+
+
+#GCloud credentials
+sdg_classifier_api/sdg-classifier-397610-7ba668817597.json
