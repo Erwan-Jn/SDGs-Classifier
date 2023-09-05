@@ -1,5 +1,5 @@
 ########################### DL TEMPLATE ##############################
-import tensorflow
+import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras import models, layers, models
 from tensorflow.keras.models import Sequential
