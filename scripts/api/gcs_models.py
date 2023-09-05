@@ -1,7 +1,6 @@
 from google.cloud import storage
 import pandas as pd
 
-CONFIG = {}
 
 # to push model on gcloud storage
 class BucketManager:

@@ -1,6 +1,5 @@
 from scripts.utils import DataProcess
 from scripts.clean_data import clean_vec, clean_lemma_vec, clean_stem_vec
-from scripts.preprocess_data import preprocess_bow, preprocess_tf_idf
 from nltk.corpus import stopwords
 import nltk
 nltk.download('stopwords')
