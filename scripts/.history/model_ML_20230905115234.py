@@ -61,14 +61,12 @@ def evaluate_model(
 
     y_pred = model.predict(X_test)
 
-    metrics = [accuracy_score(y_test, y_pred) , precision_score(y_test, y_pred, average="macro"),
-               f1_score(y_test, y_pred, average="macro"), recall_score(y_test, y_pred, average="macro")]
+    metrics = [accuracy_score(y_test, y_pred) , precision_score(y_test, y_pred), f1_score(y_test, y_pred), recall_score(y_test, y_pred)]
     metrics_name = ["res_accuracy", "res_precision", "res_f1", "res_recall"]
 
     print(f"✅ Model evaluated, accuracy: {metrics[0]}")
-    results = dict(zip(metrics_name, metrics))
-    results = {key: [value] for key, value in results.items()}
-    return pd.DataFrame(results, index=[0])
+
+    return pd.DataFrame(dict(zip(metrics_name, metrics)))
 
 def predict_model(
         model,

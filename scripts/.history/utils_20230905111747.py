@@ -95,7 +95,7 @@ class DataProcess():
         stop_words = set(stopwords.words('english'))
         lemmer = WordNetLemmatizer()
 
-        df = self.load_data(abs_path = abs_path)
+        df = self.load_data()
         df = df.loc[df["agreement"]>=agreement, : ]
 
         df["cleaned_text"] = clean_vec(df["text"])

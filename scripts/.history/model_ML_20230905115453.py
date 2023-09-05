@@ -67,8 +67,8 @@ def evaluate_model(
 
     print(f"✅ Model evaluated, accuracy: {metrics[0]}")
     results = dict(zip(metrics_name, metrics))
-    results = {key: [value] for key, value in results.items()}
-    return pd.DataFrame(results, index=[0])
+    breakpoint()
+    return pd.DataFrame.from_dict(results)
 
 def predict_model(
         model,

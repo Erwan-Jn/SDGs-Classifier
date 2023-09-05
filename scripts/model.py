@@ -3,7 +3,7 @@ from scripts.utils import DataProcess
 import numpy as np
 import pandas as pd
 
-import tensorflow
+import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from tensorflow.keras.utils import pad_sequences
 from tensorflow.keras import layers
@@ -29,19 +29,6 @@ def embedding(word2vec, sentences):
         embed.append(embedded_sentence)
 
     return embed
-
-
-scoring = {'f1_score' : make_scorer(f1_score, average='macro'),
-           'precision_score ': make_scorer(precision_score,average="macro"),
-           'recall_score': make_scorer(recall_score,average="macro"),
-           'accuracy':make_scorer(accuracy_score)}
-
-X_train, y_train =  1, 1
-def model_run(model, X=X_train, y=y_train):
-    score=cross_validate(model,X,y,scoring = scoring)
-    results_df=pd.DataFrame(score).mean()
-    results_df["model"] = str(model)
-    return results_df
 
 class PreprocDl():
     def __init__(self):

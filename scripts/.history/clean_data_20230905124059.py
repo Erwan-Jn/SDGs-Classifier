@@ -68,7 +68,7 @@ def clean(text):
     text = text.translate(translator_p)
     text = text.translate(translator_d)
     text = text.lower()
-    return " ".join(text.split())
+    return text
 clean_vec = np.vectorize(clean)
 
 def clean_lemma(text):

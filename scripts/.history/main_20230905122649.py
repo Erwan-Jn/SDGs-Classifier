@@ -111,7 +111,7 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     """
     if X_pred is None:
         X_pred = np.array(
-            ["The UN debated a new plan to increase poverty-relief efforts in poor and emerging countries",
+            ["The UN debated a new plan to increase poverty relief efforts in poor and emerging countries",
             "Results of the conference on the protection of biodiversity have stalled, with measures for large mammals especially problematic"
             ]
                 )

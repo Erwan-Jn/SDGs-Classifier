@@ -7,7 +7,6 @@ LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), "code", "Erwan-Jn",
 
 ###PATHs
 ROOT_PATH  = os.path.join(os.path.expanduser('~'), "sdg_predictor")
-LOCAL_RAW_PATH = os.path.join(ROOT_PATH, "data", "raw_data")
 LOCAL_DATA_PATH = os.path.join(ROOT_PATH, "data", "processed_data")
 LOCAL_MODEL_PATH = os.path.join(ROOT_PATH, "models", "saves")
 LOCAL_RESULT_PATH = os.path.join(ROOT_PATH, "models", "results", "train")

@@ -82,7 +82,7 @@ class DataProcess():
 
         return df
 
-    def clean_data(self, agreement=0, grouped=False, abs_path:bool = False):
+    def clean_data(self, agreement=0, grouped=False):
         """
         Takes 1 parameter, agreement. Agreement will keep all values
         above the agreement threshold for the data. The path is given
@@ -95,7 +95,7 @@ class DataProcess():
         stop_words = set(stopwords.words('english'))
         lemmer = WordNetLemmatizer()
 
-        df = self.load_data(abs_path = abs_path)
+        df = self.load_data()
         df = df.loc[df["agreement"]>=agreement, : ]
 
         df["cleaned_text"] = clean_vec(df["text"])

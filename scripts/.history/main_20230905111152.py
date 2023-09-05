@@ -8,9 +8,7 @@ from colorama import Fore, Style
 
 from scripts.utils import DataProcess, load_processed_data
 from scripts.model_ML import train_model, evaluate_model, predict_model, load_model
-from scripts.clean_data import clean_vec, clean_lemma_vec
 from scripts.params import *
-
 
 def local_setup()-> None:
     for file_path in LOCAL_PATHS:
@@ -30,7 +28,7 @@ def preprocess() -> None:
 
     # Process data
     dp = DataProcess()
-    data_clean = dp.clean_data(grouped=True, agreement=0, abs_path=True)
+    data_clean = dp.clean_data(grouped=True, agreement=0)
 
     now = datetime.now()
 
@@ -90,7 +88,7 @@ def evaluate(file_name: str = None,
         return None
 
     y= data_processed[target]
-    X = data_processed["lemma"]
+    X = data_processed.drop(columns=["sdg", "esg"], axis=1)
 
     model = load_model()
     results = evaluate_model(model, X, y)
@@ -110,35 +108,25 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     Make a prediction using the latest trained model and provided data
     """
     if X_pred is None:
-        X_pred = np.array(
-            ["The UN debated a new plan to increase poverty-relief efforts in poor and emerging countries",
-            "Results of the conference on the protection of biodiversity have stalled, with measures for large mammals especially problematic"
-            ]
-                )
+        X_pred = "The UN debated a new plan to increase poverty-relief efforts in poor and emerging countries. The plan could increase incomes for millions in Asian and African countries"
     print("\n⭐️ Use case: predict")
 
     model = load_model()
     assert model is not None
 
-    X_pred = clean_vec(X_pred)
-    X_pred = clean_lemma_vec(X_pred)
     y_pred = model.predict(X_pred)
 
-    sdg_dict = DataProcess().sdg
-    sdg_dict = {int(key): value for key, value in sdg_dict.items()}
-    breakpoint()
-
-    print("\n✅ prediction done: ", y_pred, [sdg_dict[pred] for pred in y_pred], y_pred.shape, "\n")
+    print("\n✅ prediction done: ", y_pred, y_pred.shape, "\n")
     return y_pred
 
 
 if __name__ == '__main__':
-    #local_setup()
-    #print("✅ Setup done")
-    #preprocess()
-    #print("✅ Process done")
-    #train()
-    #print("✅ Train done")
+    local_setup()
+    print("✅ Setup done")
+    preprocess()
+    print("✅ Process done")
+    train()
+    print("✅ Train done")
     evaluate()
     print("✅ Evaluate done")
     pred()

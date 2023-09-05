@@ -8,7 +8,6 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
 from scripts.clean_data import *
-from scripts.params import LOCAL_RAW_PATH
 
 class DataProcess():
     """
@@ -38,19 +37,14 @@ class DataProcess():
                             )
                         )
 
-    def load_data(self, abs_path:bool = False):
+    def load_data(self):
         """
         Takes no argument (path given in __init__)
         Returns a pd.DataFrame
         Adds 4 columns to base data
         Converts 2 columns 2 different types
         """
-        if abs_path:
-            full_file_path = os.path.join(LOCAL_RAW_PATH, "data.csv")
-            df = pd.read_csv(full_file_path, sep="\t")
-        else:
-            df = pd.read_csv(self.path, sep="\t")
-
+        df = pd.read_csv(self.path, sep="\t")
         df["sdg"] = df["sdg"].astype(str)
         df["lenght_text"] = df["text"].map(lambda row: len(row.split()))
         df["nb_reviewers"] = df["labels_negative"] + df["labels_positive"]
@@ -82,7 +76,7 @@ class DataProcess():
 
         return df
 
-    def clean_data(self, agreement=0, grouped=False, abs_path:bool = False):
+    def clean_data(self, agreement=0, grouped=False):
         """
         Takes 1 parameter, agreement. Agreement will keep all values
         above the agreement threshold for the data. The path is given
@@ -95,7 +89,7 @@ class DataProcess():
         stop_words = set(stopwords.words('english'))
         lemmer = WordNetLemmatizer()
 
-        df = self.load_data(abs_path = abs_path)
+        df = self.load_data()
         df = df.loc[df["agreement"]>=agreement, : ]
 
         df["cleaned_text"] = clean_vec(df["text"])

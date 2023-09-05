@@ -8,14 +8,29 @@ from colorama import Fore, Style
 
 from scripts.utils import DataProcess, load_processed_data
 from scripts.model_ML import train_model, evaluate_model, predict_model, load_model
-from scripts.clean_data import clean_vec, clean_lemma_vec
-from scripts.params import *
 
+class Setup():
 
-def local_setup()-> None:
-    for file_path in LOCAL_PATHS:
-        if not os.path.exists(file_path):
-            os.makedirs(file_path, exist_ok=True)
+    def __init__(self):
+        '''Class carries 2 information:
+        --The path
+        --A sdg dict linking numbers to the SDG's themes'''
+        self.data_path, self.model_path, self.model_train, self.model_evaluate = self.local_setup()
+
+    def local_setup(self)-> None:
+        root = os.path.join("~", "sdg_predictor")
+
+        paths = [os.path.join(root, "data", "processed_data"),
+                    os.path.join(root, "models", "saves"),
+                    os.path.join(root, "models", "results", "train"),
+                    os.path.join(root, "models", "results", "evaluate")
+                ]
+
+        for file_path in paths:
+            if not os.path.exists(file_path):
+                os.makedirs(file_path, exist_ok=True)
+
+        return paths
 
 def preprocess() -> None:
     """
@@ -30,11 +45,11 @@ def preprocess() -> None:
 
     # Process data
     dp = DataProcess()
-    data_clean = dp.clean_data(grouped=True, agreement=0, abs_path=True)
+    data_clean = dp.clean_data(grouped=True, agreement=0)
 
     now = datetime.now()
 
-    exit_path = LOCAL_DATA_PATH
+    exit_path = Setup().data_path
     file_name = f"processed_{now.strftime('%d-%m-%Y-%H-%M')}.csv"
     full_file_path = os.path.join(exit_path, file_name)
 
@@ -67,13 +82,15 @@ def train(file_name: str = None,
 
     model, res = train_model(X, y)
 
-    model_iteration = len(os.listdir(LOCAL_MODEL_PATH)) + 1
+    file_path = Setup().model_path
+    model_iteration = len(os.listdir(file_path)) + 1
     file_name = f'model_V{model_iteration}.pkl'
-    full_file_path = os.path.join(LOCAL_MODEL_PATH, file_name)
-    pickle.dump(model, open(full_file_path, 'wb'))
+    full_file_path = os.path.join(file_path, file_name)
+    pickle.dump(model, open(full_file_path), 'wb')
 
+    file_path = Setup().model_train
     file_name = f'model_train_V{model_iteration}'
-    full_file_path = os.path.join(LOCAL_RESULT_PATH, file_name)
+    full_file_path = os.path.join(file_path, file_name)
     res.to_csv(full_file_path)
 
 def evaluate(file_name: str = None,
@@ -90,15 +107,16 @@ def evaluate(file_name: str = None,
         return None
 
     y= data_processed[target]
-    X = data_processed["lemma"]
+    X = data_processed.drop(columns=["sdg", "esg"], axis=1)
 
     model = load_model()
     results = evaluate_model(model, X, y)
 
-    model_iteration = len(os.listdir(LOCAL_EVALUATE_PATH)) + 1
+    file_path = Setup().model_evaluate
+    model_iteration = len(os.listdir(file_path)) + 1
     file_name = f'model_evaluate_V{model_iteration}'
 
-    full_file_path = os.path.join(LOCAL_EVALUATE_PATH, file_name)
+    full_file_path = os.path.join(file_path, file_name)
     results.to_csv(full_file_path)
 
     print("✅ evaluate() done \n")
@@ -110,35 +128,25 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     Make a prediction using the latest trained model and provided data
     """
     if X_pred is None:
-        X_pred = np.array(
-            ["The UN debated a new plan to increase poverty-relief efforts in poor and emerging countries",
-            "Results of the conference on the protection of biodiversity have stalled, with measures for large mammals especially problematic"
-            ]
-                )
+        X_pred = "The UN debated a new plan to increase poverty-relief efforts in poor and emerging countries. The plan could increase incomes for millions in Asian and African countries"
     print("\n⭐️ Use case: predict")
 
     model = load_model()
     assert model is not None
 
-    X_pred = clean_vec(X_pred)
-    X_pred = clean_lemma_vec(X_pred)
     y_pred = model.predict(X_pred)
 
-    sdg_dict = DataProcess().sdg
-    sdg_dict = {int(key): value for key, value in sdg_dict.items()}
-    breakpoint()
-
-    print("\n✅ prediction done: ", y_pred, [sdg_dict[pred] for pred in y_pred], y_pred.shape, "\n")
+    print("\n✅ prediction done: ", y_pred, y_pred.shape, "\n")
     return y_pred
 
 
 if __name__ == '__main__':
-    #local_setup()
-    #print("✅ Setup done")
-    #preprocess()
-    #print("✅ Process done")
-    #train()
-    #print("✅ Train done")
+    Setup().local_setup()
+    print("✅ Setup done")
+    preprocess()
+    print("✅ Process done")
+    train()
+    print("✅ Train done")
     evaluate()
     print("✅ Evaluate done")
     pred()

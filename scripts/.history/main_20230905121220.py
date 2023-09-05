@@ -125,10 +125,9 @@ def pred(X_pred: pd.DataFrame = None) -> np.ndarray:
     y_pred = model.predict(X_pred)
 
     sdg_dict = DataProcess().sdg
-    sdg_dict = {int(key): value for key, value in sdg_dict.items()}
     breakpoint()
 
-    print("\n✅ prediction done: ", y_pred, [sdg_dict[pred] for pred in y_pred], y_pred.shape, "\n")
+    print("\n✅ prediction done: ", y_pred, y_pred.shape, "\n")
     return y_pred
 
 
