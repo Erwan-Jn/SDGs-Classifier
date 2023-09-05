@@ -8,5 +8,5 @@ def pdf(doc):
         for x in range(number_of_pages):
             result.append(pdf.pages[x].extract_text())
         result = ". ".join(result)
-        result = result.lower()
+        result = [result.lower()]
     return result
