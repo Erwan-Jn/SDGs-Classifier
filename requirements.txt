@@ -45,3 +45,4 @@ os
 streamlit
 pdfquery
 requests
+collections
