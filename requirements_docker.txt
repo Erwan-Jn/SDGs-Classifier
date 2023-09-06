@@ -1,0 +1,31 @@
+#Data Manipulation
+numpy
+pandas
+
+#ML
+scikit-learn
+
+#NLP
+gensim
+nltk
+
+#DL
+tensorflow
+pyarrow
+colorama
+
+# API
+fastapi
+pytz
+uvicorn
+google-cloud-storage
+blob
+
+# tests
+httpx           # HTTP client
+pytest
+pytest-asyncio  # asynchronous I/O support for pytest
+
+#MISC
+pylint
+ipdb
