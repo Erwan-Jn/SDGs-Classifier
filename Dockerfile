@@ -3,7 +3,7 @@
   COPY model /model
   COPY scripts /scripts
   COPY sdg_classifier_api /sdg_classifier_api
-  COPY requirements.txt /requirements.txt
+  COPY requirements_docker.txt /requirements.txt
 
   RUN pip install --upgrade pip
   RUN pip install -r requirements.txt

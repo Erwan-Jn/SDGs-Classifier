@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from taxifare.interface.main import pred
@@ -15,8 +16,8 @@ CONFIG_16sdgs = {
 CONFIG_3cats = {
     'project_id': "sdg-classifier-397610",
     'bucket_name': "sdg-classifier",
-    'local_file_path': "model/lrm31_08/pipe_lrm.pkl",
-    'remote_file_path': "xxxxx"
+    'local_file_path': "model/lrm5_09/pipe_lrm_esg.pkl",
+    'remote_file_path': "pipe_lrm_esg.pkl"
     }
 
 app = FastAPI()
@@ -48,11 +49,14 @@ def predict(text):
 @app.get("/predict_proba")
 def predict_proba(text):
     X_prepro = preprocess_features(text)
-    result = float(app.state.model_16sdgs.predict_proba(X_prepro))
-    return {'The text most probably talks about the following SDGs:': result}
+    result = app.state.model_16sdgs.predict_proba(X_prepro)
+    dict_result = {}
+    for sdg in np.arange(0,16,1):
+        dict_result[f'Probability of the text talking about SDG {sdg}']= result[0][sdg]
+    return dict_result
 
 @app.get("/predict_category")
 def predict_cats(text):
     X_prepro = preprocess_features(text)
-    result = float(app.state.model_3cats.predict(X_prepro))
+    result = float(app.state.model_cat.predict(X_prepro))
     return {'This text most probably belongs to the following category:': result}
