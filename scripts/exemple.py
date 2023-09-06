@@ -4,8 +4,13 @@ import pandas as pd
 from scripts.pdf import pdf
 from io import StringIO
 from pdfquery import PDFQuery
+from streamlit_lottie import st_lottie
+import time
 
-st.title("Demo Day - SGD Classifier")
+
+
+st.header("SDG Classifier :recycle: ",divider = "rainbow")
+st.title("Using a PDF :open_file_folder:")
 
 with st.form(key='params_for_api_pdf'):
     uploaded_file = st.file_uploader("Choose a file", type= 'pdf')
@@ -21,6 +26,7 @@ with st.form(key='params_for_api_pdf'):
             sdg_classifier_api_url = f"https://sdgclassifier-bw4yive63a-od.a.run.app/predict"
             response = requests.get(sdg_classifier_api_url,params=params)
             prediction = response.json()
+
             pred = prediction['The text is talking about SDG:']
 
             if round(pred) == 15:
@@ -60,13 +66,23 @@ with st.form(key='params_for_api_pdf'):
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-16.png ")
 
 
+st.title("Paste an article :pencil:")
+
 with st.form(key='params_for_api'):
     text = st.text_input("Article")
     if st.form_submit_button('Which SDG am I ? '):
+
+        with st_lottie(lottie_json,height=300):
+            time.sleep(5)
+            st.success('Done!')
+
         params = dict(text=text)
         sdg_classifier_api_url = f"https://sdgclassifier-bw4yive63a-od.a.run.app/predict?{text}"
+
         response = requests.get(sdg_classifier_api_url,params=params)
+
         prediction = response.json()
+
         pred = prediction['The text is talking about SDG:']
 
         if round(pred) == 15:
