@@ -11,6 +11,9 @@ from nltk.tag import pos_tag
 import re
 import numpy as np
 
+import spacy
+from tqdm import tqdm
+
 translator_p = str.maketrans(string.punctuation, ' '*len(string.punctuation))
 translator_d = str.maketrans('', '', string.digits)
 
@@ -18,6 +21,11 @@ nltk.download("stopwords")
 nltk.download("punkt")
 stop_words = set(stopwords.words('english'))
 word_lem = WordNetLemmatizer()
+
+nlp = spacy.load('en_core_web_sm', disable = ['ner'])
+print('Disabled spaCy components:', nlp.disabled)
+print('SpaCy version:', spacy.__version__)
+
 
 def clean_strip(text):
     text = text.strip() #strip
@@ -74,3 +82,28 @@ clean_vec = np.vectorize(clean)
 def clean_lemma(text):
     return " ".join([word_lem.lemmatize(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
 clean_lemma_vec = np.vectorize(clean_lemma)
+
+def preprocess_spacy(alpha: list[str]) -> list[str]:
+    """
+    Preprocess text input using spaCy.
+
+    Parameters
+    ----------
+    alpha: List[str]
+        a text corpus.
+
+    Returns
+    -------
+    doc: List[str]
+        a cleaned version of the original text corpus.
+    """
+    docs = list()
+
+    for doc in tqdm(nlp.pipe(alpha, batch_size = 128)):
+        tokens = list()
+        for token in doc:
+            if token.pos_ in ['NOUN', 'VERB', 'ADJ']:
+                tokens.append(token.lemma_)
+        docs.append(' '.join(tokens))
+
+    return docs

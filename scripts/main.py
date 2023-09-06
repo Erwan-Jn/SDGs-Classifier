@@ -6,17 +6,19 @@ import pickle
 
 from colorama import Fore, Style
 
-from scripts.utils import DataProcess, load_processed_data
+from scripts.utils import DataProcess, load_processed_data, get_top_features
 from scripts.model_ML import train_model, evaluate_model, predict_model, load_model
 from scripts.clean_data import clean_vec, clean_lemma_vec
 from scripts.params import *
+
+import sys
 
 def local_setup()-> None:
     for file_path in LOCAL_PATHS:
         if not os.path.exists(file_path):
             os.makedirs(file_path, exist_ok=True)
 
-def preprocess() -> None:
+def preprocess(agreement:float = 0) -> None:
     """
     Load the raw data from the raw_data folder
     Save the data locally if not in the raw data foler
@@ -28,7 +30,7 @@ def preprocess() -> None:
 
     # Process data
     dp = DataProcess()
-    data_clean = dp.clean_data(grouped=True, agreement=0, abs_path=True)
+    data_clean = dp.clean_data(grouped=True, agreement=agreement, abs_path=True)
 
     now = datetime.now()
 
@@ -41,7 +43,7 @@ def preprocess() -> None:
 
 def train(file_name:str = None,
           target:str = "sdg",
-          test_split: float = 0.2) -> None:
+          test_split:float = 0.2) -> None:
 
     """
     Load data from the data folder
@@ -59,6 +61,7 @@ def train(file_name:str = None,
     y= data_processed[target]
     X = data_processed["lemma"]
 
+    print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
     model, res = train_model(X, y)
 
     model_iteration = len(os.listdir(LOCAL_MODEL_PATH)) + 1
@@ -99,7 +102,7 @@ def evaluate(file_name:str = None,
 
     return results
 
-def pred(X_pred: pd.DataFrame = None) -> np.array:
+def pred(X_pred:pd.DataFrame = None) -> np.array:
     """
     Make a prediction using the latest trained model and provided data
     """
@@ -125,10 +128,12 @@ def pred(X_pred: pd.DataFrame = None) -> np.array:
     return y_pred
 
 
+
+
 if __name__ == '__main__':
     local_setup()
     print("✅ Setup done")
-    preprocess()
+    preprocess(agreement=0.6)
     print("✅ Process done")
     train()
     print("✅ Train done")
