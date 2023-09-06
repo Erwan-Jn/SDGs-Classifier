@@ -81,37 +81,38 @@ with st.form(key='params_for_api'):
         col1, col2, col3 = st.columns(3)
         for i in high:
             st.write(i[0]," :",round(i[1],2)*100,"%")
-            if "5" in i[0]:
+            st.write(i[0][-2:])
+            if i[0][-1] =="6":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-05.png")
-            if "1" in i[0]:
+            if i[0][-1] =="1":
                 st.image("https://miro.medium.com/v2/resize:fit:1400/format:webp/1*9KeYUomO4E0EqXT24XUypQ.png")
-            if "2" in i[0]:
+            if i[0][-1] =="2":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-02.png")
-            if "3" in i[0]:
+            if i[0][-1] =="3":
                 st.image("https://miro.medium.com/v2/resize:fit:1400/format:webp/1*bD6Q8IDG3Ef444SAOnNiyg.png")
-            if "4" in i[0]:
+            if i[0][-1] =="4":
                 st.image("https://miro.medium.com/v2/resize:fit:1400/format:webp/1*1-A2Y3EWTX6V8ISs7zgU_Q.png")
-            if "6" in i[0]:
+            if i[0][-1] =="6":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-06.png")
-            if "7" in i[0]:
+            if i[0][-1] =="7":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-07.png")
-            if "8" in i[0]:
+            if i[0][-1] =="8":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-08.png")
-            if "9" in i[0]:
+            if i[0][-1] =="9":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-09.png")
-            if "10" in i[0]:
+            if  i[0][-2:] =="10":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-10.png")
-            if "11" in i[0]:
+            if  i[0][-2:] =="11":
                st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-11.png")
-            if "12" in i[0]:
+            if  i[0][-2:] =="12":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-12.png")
-            if "13" in i[0]:
+            if  i[0][-2:] =="13":
                  st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-13.png")
-            if "14" in i[0]:
+            if  i[0][-2:] =="14":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-14.png")
-            if "15" in i[0]:
+            if  i[0][-2:] =="15":
                 st.image("https://miro.medium.com/v2/resize:fit:1400/format:webp/1*7MDLuoSaJjS-q5tZ_vJbVA.png")
-            if "16" in i[0]:
+            if  i[0][-2:] =="16":
                 st.image("https://www.kit.nl/wp-content/uploads/2019/02/E_SDG-goals_icons-individual-rgb-16.png ")
 
 
@@ -188,16 +189,3 @@ with st.form(key='params_for_api'):
 
         elif round(pred) == 2:
             st.image("https://www.pngall.com/wp-content/uploads/2017/05/Save-Earth-PNG-Picture.png")
-
-
-        #st.write()
-        #max_pred = max(prediction)
-        #max_keys = [key for key, value in prediction.items() if value == max(prediction.values())]
-        #st.header(f'This text should be classified in SDG {max_pred}')
-
-
-
-    #st.form_submit_button('Which SDGs am I composed of ?')
-    #st.form_submit_button('Big category ?')
-
-#st.image("https://www.ifr.sun.ac.za/wp-content/uploads/2020/07/sdgs.png")
