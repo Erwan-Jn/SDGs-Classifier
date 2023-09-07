@@ -11,7 +11,19 @@ from scripts.model_ML import train_model, evaluate_model, predict_model, load_mo
 from scripts.clean_data import clean_vec, clean_lemma_vec
 from scripts.params import *
 
-import sys
+
+def main(agreement=0.8, target="sdg"):
+
+    print(Fore.MAGENTA + "\n ⭐️ Do you want to use specific parameter?" + Style.RESET_ALL)
+
+    yes = bool(int(input("Enter 0 for no and 1 for yes: ")))
+
+    if yes:
+        agreement = float(input("Enter agreement (float between 0 and 1s): "))
+        target = input("Enter target (sdg or esg): ")
+
+    return agreement, target
+
 
 def local_setup()-> None:
     for file_path in LOCAL_PATHS:
@@ -62,7 +74,7 @@ def train(file_name:str = None,
     X = data_processed["lemma"]
 
     print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
-    model, res = train_model(X, y)
+    model, res = train_model(X, y, test_split)
 
     model_iteration = len(os.listdir(LOCAL_MODEL_PATH)) + 1
     file_name = f'model_V{model_iteration}.pkl'
@@ -73,7 +85,7 @@ def train(file_name:str = None,
     full_file_path = os.path.join(LOCAL_RESULT_PATH, file_name)
     res.to_csv(full_file_path)
 
-def model_viz():
+def model_viz()-> None:
     model = load_model()
 
     df = get_top_features(model['tf_idf'], model['clf'], model['selector'], how = 'long')
@@ -146,18 +158,17 @@ def pred(X_pred:pd.DataFrame = None) -> np.array:
     return y_pred
 
 
-
-
 if __name__ == '__main__':
+    agreement, target = main()
     local_setup()
     print("✅ Setup done")
-    preprocess(agreement=0.5)
+    preprocess(agreement=agreement)
     print("✅ Process done")
-    train()
+    train(target=target)
     print("✅ Train done")
     model_viz()
     print("✅ Viz created")
-    evaluate()
+    evaluate(target=target)
     print("✅ Evaluate done")
     pred()
     print("✅ Pred done")
