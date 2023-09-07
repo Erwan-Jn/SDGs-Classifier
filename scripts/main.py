@@ -6,7 +6,7 @@ import pickle
 
 from colorama import Fore, Style
 
-from scripts.utils import DataProcess, load_processed_data, get_top_features
+from scripts.utils import DataProcess, load_processed_data, get_top_features, sdg_explainer
 from scripts.model_ML import train_model, evaluate_model, predict_model, load_model
 from scripts.clean_data import clean_vec, clean_lemma_vec
 from scripts.params import *
@@ -58,7 +58,7 @@ def train(file_name:str = None,
     if data_processed is None:
         return None
 
-    y= data_processed[target]
+    y= data_processed[target].astype(int)
     X = data_processed["lemma"]
 
     print(Fore.BLUE + "\nTraining model..." + Style.RESET_ALL)
@@ -72,6 +72,24 @@ def train(file_name:str = None,
     file_name = f'model_train_V{model_iteration}'
     full_file_path = os.path.join(LOCAL_RESULT_PATH, file_name)
     res.to_csv(full_file_path)
+
+def model_viz():
+    model = load_model()
+
+    df = get_top_features(model['tf_idf'], model['clf'], model['selector'], how = 'long')
+    df = df.sort_values(['SDG', 'coef'], ignore_index = True)
+
+    model_iteration = len(os.listdir(LOCAL_MODEL_PATH)) + 1
+    file_name = f'coefs_model_V{model_iteration}.csv'
+
+    full_file_path = os.path.join(LOCAL_COEFS_PATH, file_name)
+    df.to_csv(full_file_path, index=False)
+
+    fig = sdg_explainer(df=df)
+
+    file_name = f'coefs_model_V{model_iteration}.jpeg'
+    full_file_path = os.path.join(LOCAL_IMAGE_PATH, file_name)
+    fig.write_image(full_file_path)
 
 def evaluate(file_name:str = None,
     target:str = "sdg"
@@ -119,7 +137,7 @@ def pred(X_pred:pd.DataFrame = None) -> np.array:
 
     X_pred = clean_vec(X_pred)
     X_pred = clean_lemma_vec(X_pred)
-    y_pred = model.predict(X_pred)
+    y_pred, y_pred_proba = predict_model(model, X_pred)
 
     sdg_dict = DataProcess().sdg
     sdg_dict = {int(key): value for key, value in sdg_dict.items()}
@@ -133,10 +151,12 @@ def pred(X_pred:pd.DataFrame = None) -> np.array:
 if __name__ == '__main__':
     local_setup()
     print("✅ Setup done")
-    preprocess(agreement=0.6)
+    preprocess(agreement=0.5)
     print("✅ Process done")
     train()
     print("✅ Train done")
+    model_viz()
+    print("✅ Viz created")
     evaluate()
     print("✅ Evaluate done")
     pred()

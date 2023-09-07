@@ -6,10 +6,12 @@ import numpy as np
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-import nltk
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.express as px
+
+from sklearn.metrics import accuracy_score, precision_score, f1_score, confusion_matrix
 
 from scripts.clean_data import *
 from scripts.params import LOCAL_RAW_PATH, LOCAL_DATA_PATH
@@ -157,7 +159,7 @@ def get_top_features(vectoriser, clf, selector = None, top_n: int = 25, how: str
     Convenience function to extract top_n predictor per class from a model.
     """
 
-    assert hasattr(vectoriser, 'get_feature_names')
+    assert hasattr(vectoriser, 'get_feature_names_out')
     assert hasattr(clf, 'coef_')
     assert hasattr(selector, 'get_support')
     assert how in {'long', 'wide'}, f'how must be either long or wide not {how}'
@@ -165,7 +167,7 @@ def get_top_features(vectoriser, clf, selector = None, top_n: int = 25, how: str
     features = vectoriser.get_feature_names_out()
     if selector is not None:
         features = features[selector.get_support()]
-    axis_names = [f'freature_{x + 1}' for x in range(top_n)]
+    axis_names = [f'feature_{x + 1}' for x in range(top_n)]
 
     if len(clf.classes_) > 2:
         results = list()
@@ -177,7 +179,7 @@ def get_top_features(vectoriser, clf, selector = None, top_n: int = 25, how: str
         idx = coefs.argsort()[::-1][:top_n]
         results = tuple(zip([clf.classes_[1]] * top_n, features[idx], coefs[idx]))
 
-    df_lambda = pd.DataFrame(results, columns =  ['sdg', 'feature', 'coef'])
+    df_lambda = pd.DataFrame(results, columns =  ['SDG', 'feature', 'coef'])
 
     if how == 'wide':
         df_lambda = pd.DataFrame(
@@ -186,20 +188,23 @@ def get_top_features(vectoriser, clf, selector = None, top_n: int = 25, how: str
             columns = axis_names
         )
 
+    df_lambda["SDG"] = df_lambda["SDG"].astype(str)
+    df_lambda["SDG"] = df_lambda["SDG"].map(DataProcess().sdg)
+
     return df_lambda
 
-def plot_confusion_matrix(y_true: np.ndarray, y_hat: np.ndarray, figsize = (16, 9)):
+def plot_confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, figsize = (16, 9)):
     """
     Convenience function to display a confusion matrix in a graph.
     """
     labels = sorted(list(set(y_true)))
     df_lambda = pd.DataFrame(
-        confusion_matrix(y_true, y_hat),
+        confusion_matrix(y_true, y_pred),
         index = labels,
         columns = labels
     )
-    acc = accuracy_score(y_true, y_hat)
-    f1s = f1_score(y_true, y_hat, average = 'weighted')
+    acc = accuracy_score(y_true, y_pred)
+    f1s = f1_score(y_true, y_pred, average = 'weighted')
 
     fig, ax = plt.subplots(figsize = figsize)
     sns.heatmap(
@@ -214,3 +219,31 @@ def plot_confusion_matrix(y_true: np.ndarray, y_hat: np.ndarray, figsize = (16, 
     )
     fig.suptitle('Confusion Matrix')
     plt.tight_layout()
+
+def sdg_explainer(df: pd.DataFrame)-> px.bar:
+    colors = px.colors.qualitative.Dark24[:20]
+    template = 'SDG: %{customdata}<br>Feature: %{y}<br>Coefficient: %{x:.2f}'
+
+    fig = px.bar(
+        data_frame = df,
+        x = 'coef',
+        y = 'feature',
+        custom_data = ['SDG'],
+        facet_col = 'SDG',
+        facet_col_wrap = 3,
+        facet_col_spacing = .15,
+        height = 1200,
+        labels = {
+            'coef': 'Coefficient',
+            'feature': ''
+        },
+        title = 'Top 15 Strongest Predictors by SDG'
+    )
+
+    fig.for_each_trace(lambda x: x.update(hovertemplate = template))
+    fig.for_each_trace(lambda x: x.update(marker_color = colors.pop(0)))
+    #fig.for_each_annotation(lambda x: x.update(text = fix_sdg_name(x.text.split("=")[-1])))
+    fig.update_yaxes(matches = None, showticklabels = True)
+    fig.show()
+
+    return fig
