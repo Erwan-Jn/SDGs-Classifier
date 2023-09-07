@@ -6,13 +6,17 @@ import pickle
 
 from colorama import Fore, Style
 
-from scripts.utils import DataProcess, load_processed_data, get_top_features, sdg_explainer
+from scripts.data import DataProcess, load_processed_data
+from scripts.utils import get_top_features, sdg_explainer, plot_confusion_matrix
 from scripts.model_ML import train_model, evaluate_model, predict_model, load_model
-from scripts.clean_data import clean_vec, clean_lemma_vec
+from scripts.cleaning import clean_vec, preprocess_spacy
 from scripts.params import *
 
-
+#####LAUNCH#####
 def main(agreement=0.8, target="sdg"):
+    '''
+    Method to input the parameters for the programme.
+    '''
 
     print(Fore.MAGENTA + "\n ⭐️ Do you want to use specific parameter?" + Style.RESET_ALL)
 
@@ -24,12 +28,17 @@ def main(agreement=0.8, target="sdg"):
 
     return agreement, target
 
-
+#####SETUP#####
 def local_setup()-> None:
+    '''
+    Method to create the directories for the package.
+    Takes and returns no objects
+    '''
     for file_path in LOCAL_PATHS:
         if not os.path.exists(file_path):
             os.makedirs(file_path, exist_ok=True)
 
+#####PROCESS#####
 def preprocess(agreement:float = 0) -> None:
     """
     Load the raw data from the raw_data folder
@@ -53,6 +62,7 @@ def preprocess(agreement:float = 0) -> None:
 
     print("✅ preprocess() done \n Saved localy")
 
+#####MODEL#####
 def train(file_name:str = None,
           target:str = "sdg",
           test_split:float = 0.2) -> None:
@@ -120,7 +130,9 @@ def evaluate(file_name:str = None,
     X = data_processed["lemma"]
 
     model = load_model()
-    results = evaluate_model(model, X, y)
+    results, y_pred, y_test = evaluate_model(model, X, y)
+
+    plot_confusion_matrix(y_test, y_pred)
 
     model_iteration = len(os.listdir(LOCAL_EVALUATE_PATH)) + 1
     file_name = f'model_evaluate_V{model_iteration}'
@@ -148,7 +160,7 @@ def pred(X_pred:pd.DataFrame = None) -> np.array:
     assert model is not None
 
     X_pred = clean_vec(X_pred)
-    X_pred = clean_lemma_vec(X_pred)
+    X_pred = preprocess_spacy(X_pred)
     y_pred, y_pred_proba = predict_model(model, X_pred)
 
     sdg_dict = DataProcess().sdg
