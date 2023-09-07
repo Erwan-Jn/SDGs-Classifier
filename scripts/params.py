@@ -1,11 +1,11 @@
 import os
-import numpy as np
 
+######################CLOUD CREDENTIALS######################
 GCP_PROJECT = os.environ.get("GCP_PROJECT")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
-LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), "code", "Erwan-Jn", "10-Project", "SGDs-Classifier")
 
-###PATHs
+######################PATHS######################
+LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), "code", "Erwan-Jn", "10-Project", "SGDs-Classifier")
 ROOT_PATH  = os.path.join(os.path.expanduser('~'), "sdg_predictor")
 LOCAL_RAW_PATH = os.path.join(ROOT_PATH, "data", "raw_data")
 LOCAL_DATA_PATH = os.path.join(ROOT_PATH, "data", "processed_data")

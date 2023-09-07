@@ -19,7 +19,7 @@ pipe_model = Pipeline([
         ])
 
 
-
+FunctionTransformer
 def to_arr(x):
     return x.toarray()
 

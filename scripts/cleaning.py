@@ -1,12 +1,9 @@
-import os
-import pandas as pd
 import string
 
 import nltk
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.tag import pos_tag
 
 import re
 import numpy as np
@@ -22,7 +19,7 @@ nltk.download("punkt")
 stop_words = set(stopwords.words('english'))
 word_lem = WordNetLemmatizer()
 
-nlp = spacy.load('en_core_web_sm', disable = ['ner'])
+nlp = spacy.load('en_core_web_sm')#, disable = ['ner'])
 print('Disabled spaCy components:', nlp.disabled)
 print('SpaCy version:', spacy.__version__)
 
@@ -72,33 +69,24 @@ def clean_basic(text):
     return text
 
 def clean(text):
-    text = text.strip() #strip
+    text = text.strip()
     text = text.translate(translator_p)
     text = text.translate(translator_d)
     text = text.lower()
     return " ".join(text.split())
 clean_vec = np.vectorize(clean)
 
+#def lower_text(text:str) -> str:
+#    return text.lower()
+#lower_text_vec = np.vectorize(lower_text)
+
 def clean_lemma(text):
     return " ".join([word_lem.lemmatize(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
 clean_lemma_vec = np.vectorize(clean_lemma)
 
 def preprocess_spacy(alpha: list[str]) -> list[str]:
-    """
-    Preprocess text input using spaCy.
-
-    Parameters
-    ----------
-    alpha: List[str]
-        a text corpus.
-
-    Returns
-    -------
-    doc: List[str]
-        a cleaned version of the original text corpus.
-    """
     docs = list()
-
+    alpha = [str(text) for text in alpha]
     for doc in tqdm(nlp.pipe(alpha, batch_size = 128)):
         tokens = list()
         for token in doc:

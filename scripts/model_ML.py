@@ -20,6 +20,9 @@ import pickle
 
 from scripts.params import LOCAL_MODEL_PATH
 
+def to_arr(x):
+    return x.toarray()
+
 def train_model(
         X: np.ndarray,
         y: np.ndarray,
@@ -85,7 +88,7 @@ def evaluate_model(
 
     results = dict(zip(metrics_name, metrics))
     results = {key: [value] for key, value in results.items()}
-    return pd.DataFrame(results, index=[0])
+    return pd.DataFrame(results, index=[0]), y_pred, y_test
 
 def predict_model(model, X:str) -> np.array:
     return model.predict(X), model.predict_proba(X)
