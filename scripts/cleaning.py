@@ -9,6 +9,8 @@ import re
 import numpy as np
 
 import spacy
+import spacy_fastlang
+from spacy.language import Language
 from tqdm import tqdm
 
 translator_p = str.maketrans(string.punctuation, ' '*len(string.punctuation))
@@ -19,10 +21,8 @@ nltk.download("punkt")
 stop_words = set(stopwords.words('english'))
 word_lem = WordNetLemmatizer()
 
-nlp = spacy.load('en_core_web_sm')#, disable = ['ner'])
-print('Disabled spaCy components:', nlp.disabled)
-print('SpaCy version:', spacy.__version__)
-
+nlp = spacy.load(('en_core_web_sm'))
+nlp.add_pipe("language_detector") #fast_lang comes here
 
 def clean_strip(text):
     text = text.strip() #strip
@@ -80,18 +80,15 @@ clean_vec = np.vectorize(clean)
 #    return text.lower()
 #lower_text_vec = np.vectorize(lower_text)
 
-def clean_lemma(text):
-    return " ".join([word_lem.lemmatize(w) for w in iter(word_tokenize(text)) if w not in stop_words]) ## remove stopwords
-clean_lemma_vec = np.vectorize(clean_lemma)
-
 def preprocess_spacy(alpha: list[str]) -> list[str]:
     docs = list()
     alpha = [str(text) for text in alpha]
     for doc in tqdm(nlp.pipe(alpha, batch_size = 128)):
-        tokens = list()
-        for token in doc:
-            if token.pos_ in ['NOUN', 'VERB', 'ADJ']:
-                tokens.append(token.lemma_)
-        docs.append(' '.join(tokens))
+        if doc._.language == "en":
+            tokens = list()
+            for token in doc:
+                if token.pos_ in ['NOUN', 'VERB', 'ADJ']:
+                    tokens.append(token.lemma_)
+            docs.append(' '.join(tokens))
 
     return docs
